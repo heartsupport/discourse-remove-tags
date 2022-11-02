@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# name: discourse-plugin-name
+# name: discourse-remove-tags
 # about: A plugin that removed tags when topics are closed, invisible or deleted
 # version: 1.0.1
 # authors: Acacia Bengo Ssembajjwe
@@ -11,23 +11,17 @@ enabled_site_setting :plugin_name_enabled
 
 after_initialize do
   class ::Topic
-    before_save :update_topic_tags, if: :has_needs_support_tag?
+    after_update :update_tags
 
     def update_topic_tags
       # check if topic has tag needs support and either closed or visible has changed
-      needs_support_tag = Tag.find_or_create_by(name: "Needs-Support")
-      if closed_changed? && self.visible == true
-        self.tags.delete needs_support_tag
-      end
+      needs_support_tag = Tag.find_by(name: "Needs-Support")
 
-      if visible_changed? && self.visible == false
-        self.tags.delete needs_support_tag
+      if needs_support_tag && self.tags.include?(needs_support_tag)
+        if self.visible == false || self.closed == true
+          self.tags.delete needs_support_tag
+        end
       end
     end
-  end
-
-  def has_needs_support_tag?
-    needs_support_tag = Tag.find_or_create_by(name: "Needs-Support")
-    self.tags.include? (needs_support_tag)
   end
 end
