@@ -7,8 +7,6 @@
 # url: https://github.com/heartsupport/discourse-remove-tags
 # required_version: 2.7.0
 
-enabled_site_setting :plugin_name_enabled
-
 after_initialize do
   DiscourseEvent.on(:topic_status_updated) do |topic, status, enabled|
     needs_support_tag = Tag.find_by(name: "Needs-Support")
