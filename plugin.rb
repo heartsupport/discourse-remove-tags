@@ -9,8 +9,8 @@
 
 after_initialize do
   DiscourseEvent.on(:topic_status_updated) do |topic, status, enabled|
-    needs_support_tag = Tag.find_by(name: "Needs-Support")
-    if needs_support_tag && topic.tags.include?(needs_support_tag)
+    needs_support_tag = Tag.find_or_create_by(name: "Needs-Support")
+    if topic.tags.include?(needs_support_tag)
       case status
       when "closed"
         topic.tags.delete needs_support_tag if topic.closed == true
